@@ -1,0 +1,11 @@
+version: 0.6
+data_loading: TRUE
+cache_loading: TRUE
+recursive_loading: FALSE
+munging: FALSE
+logging: FALSE
+load_libraries: TRUE
+libraries: reshape2, plyr, dplyr, ggplot2, stringr, lubridate, data.table, caret, caretEnsemble, zoo
+as_factors: TRUE
+data_tables: TRUE
+attach_internal_libraries: FALSE
