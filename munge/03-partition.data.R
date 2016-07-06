@@ -9,9 +9,11 @@ s <- sample(1:rows, round(0.6*rows))
 setkey(summary.dt, n)
 
 summary.dt[n %in% s][, .N, device_id]
+training.epochs <- summary.dt[n %in% s][,.(device_id, epoch_id),]
 training <- summary.dt[n %in% s][,':='(n=NULL,
                                        steps=NULL,
                                        epoch_id=NULL),]
+testing.epochs <- summary.dt[!n %in% s][,.(device_id, epoch_id),]
 testing <- summary.dt[!n %in% s][,':='(n=NULL,
                                        steps=NULL,
                                        epoch_id=NULL),]
