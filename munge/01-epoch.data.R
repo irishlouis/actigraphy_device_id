@@ -34,14 +34,13 @@ epoch.filtered <- epoch[drop.rows]
 rm(drop.rows)
 
 # format dates
-epoch.filtered[epoch.filtered,timestamp := ymd_hms(timestamp),][,date := floor_date(timestamp, "day"),]
+epoch.filtered[,timestamp := ymd_hms(timestamp),][,date := floor_date(timestamp, "day"),]
 
 # set keys
 setkey(epoch.filtered, serialnumber, date, timestamp)
 
 # filter to week of interest
-epoch.filtered <- epoch.filtered[timestamp <= ymd_hms("20160503 000000") & 
-                 timestamp >= ymd_hms("20160426 000000")]
+epoch.filtered <- epoch.filtered[timestamp <= ymd_hms("20160503 000000") ]
 
 # subset to small number of devices for inital POC
 epoch.filtered <- epoch.filtered[serialnumber %in% c("TAS1E31150000", "TAS1E31150005", "TAS1E31150028", "TAS1E31150026")]
