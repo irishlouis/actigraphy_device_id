@@ -15,3 +15,6 @@ summary.dt[,.N, device_id]
 
 # add a row count for each device_id
 summary.dt[,n:=1,][,n:=cumsum(n) ,device_id ]
+
+# cache summary file
+cache("summary.dt")
