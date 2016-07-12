@@ -18,6 +18,9 @@ testing <- summary.dt[!n %in% s][,':='(n=NULL,
                                        steps=NULL,
                                        epoch_id=NULL),]
 
+cache("training")
+cache("testing")
+
 # write to file 
 fwrite(training, "training.csv")
 fwrite(testing, "testing.csv")
