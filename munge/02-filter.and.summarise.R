@@ -6,7 +6,7 @@ dt <- dt[epoch.filtered[,.(device_id, epoch_id, steps),]][!is.na(vec.mag)]
 dt[, steps_bin := bin.steps(steps, by=3,  upper = 20), ]
 
 # summarise filtered raw data
-summary.dt <- summarise.data(dt)
+summary.dt <- summarise.data(dt, k = 25, freq = 100)
 
 summary.dt[, steps_bin := as.factor(as.character(steps_bin)),]
 
