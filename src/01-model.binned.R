@@ -88,7 +88,7 @@ ens.rpart <- train(device_id ~ results.nnet+results.rf+results.c50,
                    tuneLength = 5)
 
 confusionMatrix(predict(ens.rpart, testing[-s1]), testing[-s1, device_id])
-confusionMatrix(testing[-s1, results.rf], testing[-s1, device_id])
+confusionMatrix(testing[-s1, results.nnet], testing[-s1, device_id])
 
 for (i in unique(testing$device_id)){
   print(paste("device_id", i))
