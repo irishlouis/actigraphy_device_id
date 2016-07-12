@@ -49,3 +49,5 @@ epoch.filtered <- epoch.filtered[serialnumber %in% c("TAS1E31150000", "TAS1E3115
 epoch.filtered[,epoch_id := as.numeric(as.POSIXct(timestamp)),]
 epoch.filtered[,device_id := serialnumber,]
 setkey(epoch.filtered, device_id, epoch_id)
+
+cache("epoch.filtered")
