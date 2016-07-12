@@ -31,3 +31,6 @@ testing2[,':='(epoch_id = NULL, date = NULL, n = NULL, steps =NULL)]
 
 # balance
 testing2[, .N, device_id]
+
+cache("training2")
+cache("testing2")
