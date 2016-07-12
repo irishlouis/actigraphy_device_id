@@ -128,3 +128,17 @@ ggplot(testing2[device_id == "TAS1E31150028",
        aes(epoch, pred.result)) + 
   geom_point() +
   facet_wrap(~steps_bin, ncol = 1)
+
+
+
+## example of raw epoch
+ggplot(data.frame(n=1:1000, 
+                  v=dt[(device_id == "TAS1E31150000" & epoch_id == 1461596280), vec.mag, ]), 
+       aes(n, v)) + geom_line()
+## example of smoothed raw epoch
+smoothby <- 25
+ggplot(data.frame(n = 1:(1000-smoothby+1),
+                  v = rollapply(dt[(device_id == "TAS1E31150000" & epoch_id == 1461596280), vec.mag, ],
+                                smoothby,
+                                mean) ),
+       aes(n, v)) + geom_line()
