@@ -53,6 +53,10 @@ names(mdls.nnet) <- unique(training$steps_bin)
 names(mdls.rf) <- unique(training$steps_bin)
 names(mdls.c50) <- unique(training$steps_bin)
 
+cache("mdls.nnet")
+cache("mdls.rf")
+cache("mdls.c50")
+
 # define col's used for model
 sd.cols <- c("avg.vec","sd.vec","peaks.per.sec","avg.period","sd.period","avg.amp","sd.amp")
 for (i in unique(testing$steps_bin)){
@@ -88,7 +92,7 @@ ens.rpart <- train(device_id ~ results.nnet+results.rf+results.c50,
                    tuneLength = 5)
 
 confusionMatrix(predict(ens.rpart, testing[-s1]), testing[-s1, device_id])
-confusionMatrix(testing[-s1, results.nnet], testing[-s1, device_id])
+confusionMatrix(testing[-s1, results.rf], testing[-s1, device_id])
 
 for (i in unique(testing$device_id)){
   print(paste("device_id", i))
@@ -102,6 +106,7 @@ confusionMatrix(testing[device_id == "TAS1E31150000", results.nnet], testing[,.(
 repeats <- 1000
 sample.size <- 100
 for (i in unique(testing$device_id)){
+  print(i)
   print(sum(sapply(1:repeats, function(x){
     s2 <- sample(testing[device_id == i, .N], sample.size)
     tbl <- confusionMatrix(testing[device_id == i, results.nnet][s2], 
@@ -112,6 +117,9 @@ for (i in unique(testing$device_id)){
 }
 
 ## seems like correct device is always the most frequently found
+
+cache("testing")
+
 
 
 
