@@ -21,6 +21,6 @@ testing <- summary.dt[!n %in% s][,':='(n=NULL,
 cache("training")
 cache("testing")
 
-# write to file 
-fwrite(training, "training.csv")
-fwrite(testing, "testing.csv")
+# # write to file 
+# fwrite(training, "training.csv")
+# fwrite(testing, "testing.csv")
