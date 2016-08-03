@@ -49,6 +49,8 @@ for (i in unique(training$steps_bin)){
   mdls.c50[which(i == unique(training$steps_bin))] <- list(tmp.mdl)
 }
 
+rm(init_control)
+
 names(mdls.nnet) <- unique(training$steps_bin)
 names(mdls.rf) <- unique(training$steps_bin)
 names(mdls.c50) <- unique(training$steps_bin)
@@ -72,9 +74,9 @@ for (i in unique(testing$steps_bin)){
           .SDcols = sd.cols] 
 }
 
-confusionMatrix(testing$results.nnet, testing$device_id)
-confusionMatrix(testing$results.rf, testing$device_id)
-confusionMatrix(testing$results.c50, testing$device_id)
+confusionMatrix(as.character(testing$results.nnet), testing$device_id)
+confusionMatrix(as.character(testing$results.rf), testing$device_id)
+confusionMatrix(as.character(testing$results.c50), testing$device_id)
 
 # cor btn results
 sum(diag(table(testing$results.rf, testing$results.c50))) / nrow(testing)
@@ -92,7 +94,7 @@ ens.rpart <- train(device_id ~ results.nnet+results.rf+results.c50,
                    tuneLength = 5)
 
 confusionMatrix(predict(ens.rpart, testing[-s1]), testing[-s1, device_id])
-confusionMatrix(testing[-s1, results.rf], testing[-s1, device_id])
+confusionMatrix(as.character(testing[-s1, results.rf]), testing[-s1, device_id])
 
 for (i in unique(testing$device_id)){
   print(paste("device_id", i))
@@ -101,7 +103,9 @@ for (i in unique(testing$device_id)){
 }
 
 ### look at individual subjects results nnet
-confusionMatrix(testing[device_id == "TAS1E31150000", results.nnet], testing[,.(device_id = as.factor(device_id))][device_id == "TAS1E31150000", device_id])
+confusionMatrix(testing[device_id == "TAS1E31150000", results.nnet], 
+                testing[,.(device_id = as.factor(device_id))][device_id == "TAS1E31150000", device_id])
+
 ##### does this majority hold samples?
 repeats <- 1000
 sample.size <- 100
@@ -115,17 +119,18 @@ for (i in unique(testing$device_id)){
            return(T), return(F))
   }))/repeats)
 }
+rm(repeats)
+rm(sample.size)
 
 ## seems like correct device is always the most frequently found
 
 cache("testing")
-
+cache("ens.rpart")
 
 
 
 # what does this look like
 ## are mis classifieds clustered?
-
 ggplot(testing[device_id == "TAS1E31150000", 
                .(epoch = as.POSIXct(testing.epochs[device_id == "TAS1E31150000", epoch_id], origin="1970-01-01"), 
                  pred.result = device_id == results.nnet)][1:100],
