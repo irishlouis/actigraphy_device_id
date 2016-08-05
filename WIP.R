@@ -1,3 +1,21 @@
+
+## sync data file from dropbox for EC2 instance
+library(RStudioAMI)
+excludeSyncDropbox("*")
+# sync with dropbox folder
+includeSyncDropbox("UCD_MSc_uncompressed")
+# check status
+dropboxStatus()
+
+# confirm all files there
+system('ls ~/Dropbox/UCD_MSc_uncompressed')
+# check what's in proj /data - should be empty
+system('ls ~/actigraphy_device_id/data')
+# copy files across
+system('cp ~/Dropbox/UCD_MSc_uncompressed/* ~/actigraphy_device_id/data')
+# check files copied
+system('ls ~/actigraphy_device_id/data')
+
 ###########################################################################
 ## clean slate
 
