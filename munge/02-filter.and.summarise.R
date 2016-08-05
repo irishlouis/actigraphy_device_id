@@ -1,5 +1,23 @@
 # filter raw data to identified epochs
 
+dt <- rbindlist(list(
+        TAS1E31150000..2016.04.29..processed, TAS1E31150000..2016.05.03..processed, TAS1E31150005..2016.04.29..processed, 
+        TAS1E31150005..2016.05.04..processed, TAS1E35150309..2016.04.29..processed, TAS1E35150309..2016.05.03..processed,
+        TAS1E31150026..2016.04.29..processed, TAS1E31150026..2016.05.03..processed, TAS1E31150028..2016.04.29..processed,
+        TAS1E31150028..2016.05.03..processed, TAS1E31150030..2016.05.04..processed, TAS1E31150059..2016.04.29..processed,
+        TAS1E31150059..2016.05.03..processed, TAS1E35150241..2016.04.29..processed, TAS1E35150241..2016.05.10..processed,
+        TAS1E35150250..2016.05.03..processed, TAS1E35150289..2016.05.03..processed,  
+        TAS1E35150309..2016.05.03..processed))
+
+rm(TAS1E31150000..2016.04.29..processed, TAS1E31150000..2016.05.03..processed, TAS1E31150005..2016.04.29..processed, 
+   TAS1E31150005..2016.05.04..processed, TAS1E35150309..2016.04.29..processed, TAS1E35150309..2016.05.03..processed,
+   TAS1E31150026..2016.04.29..processed, TAS1E31150026..2016.05.03..processed, TAS1E31150028..2016.04.29..processed,
+   TAS1E31150028..2016.05.03..processed, TAS1E31150030..2016.05.04..processed, TAS1E31150059..2016.04.29..processed,
+   TAS1E31150059..2016.05.03..processed, TAS1E35150241..2016.04.29..processed, TAS1E35150241..2016.05.10..processed,
+   TAS1E35150250..2016.05.03..processed, TAS1E35150289..2016.05.03..processed,  
+   TAS1E35150309..2016.05.03..processed)
+
+setkey(dt, device_id, epoch_id)
 dt <- dt[epoch.filtered[,.(device_id, epoch_id, steps),]][!is.na(vec.mag)]
 
 # bin step counts
@@ -18,3 +36,7 @@ summary.dt[,n:=1,][,n:=cumsum(n) ,device_id ]
 
 # cache summary file
 cache("summary.dt")
+
+# copy summary.dt back to dropbox for syncing
+system('cp ~/actigraphy_device_id/cache/summary.dt.RData ~/Dropbox/UCD_MSc_uncompressed/')
+system('cp ~/actigraphy_device_id/cache/epoch.filtered.RData ~/Dropbox/UCD_MSc_uncompressed/')
