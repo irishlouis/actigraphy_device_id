@@ -42,9 +42,6 @@ setkey(epoch.filtered, serialnumber, date, timestamp)
 # filter to week of interest
 epoch.filtered <- epoch.filtered[timestamp <= ymd_hms("20160503 000000") ]
 
-# subset to small number of devices for inital POC
-epoch.filtered <- epoch.filtered[serialnumber %in% c("TAS1E31150000", "TAS1E31150005", "TAS1E31150028", "TAS1E31150026", "TAS1E31150059")]
-
 # some renaming to match with raw data
 epoch.filtered[,epoch_id := as.numeric(as.POSIXct(timestamp)),]
 epoch.filtered[,device_id := serialnumber,]
