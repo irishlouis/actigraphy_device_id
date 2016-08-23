@@ -1,5 +1,5 @@
 version: 0.6
-data_loading: FALSE
+data_loading: TRUE
 cache_loading: TRUE
 recursive_loading: FALSE
 munging: FALSE
