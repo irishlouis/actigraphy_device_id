@@ -14,11 +14,18 @@ rm(TAS1E31150000..2016.04.29..processed, TAS1E31150000..2016.05.03..processed, T
    TAS1E31150026..2016.04.29..processed, TAS1E31150026..2016.05.03..processed, TAS1E31150028..2016.04.29..processed,
    TAS1E31150028..2016.05.03..processed, TAS1E31150030..2016.05.04..processed, TAS1E31150059..2016.04.29..processed,
    TAS1E31150059..2016.05.03..processed, TAS1E35150241..2016.04.29..processed, TAS1E35150241..2016.05.10..processed,
-   TAS1E35150250..2016.05.03..processed, TAS1E35150289..2016.05.03..processed,  
-   TAS1E35150309..2016.05.03..processed)
+   TAS1E35150250..2016.05.03..processed, TAS1E35150289..2016.05.03..processed, TAS1E35150309..2016.05.03..processed)
 
 setkey(dt, device_id, epoch_id)
-dt <- dt[epoch.filtered[,.(device_id, epoch_id, steps),]][!is.na(vec.mag)]
+dt[, .N, device_id]
+epoch.filtered[, .N, device_id]
+dt1 <- dt[epoch.filtered[,.(device_id, epoch_id, steps),]][!is.na(vec.mag)]
+dt1[, .N, device_id]
+
+dt[device_id == "TAS1E35150289"][1:3]
+dt[device_id == "TAS1E31150030"][1:3]
+
+head(dt)
 
 # bin step counts
 dt[, steps_bin := bin.steps(steps, by=3,  upper = 20), ]
