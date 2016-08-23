@@ -33,26 +33,51 @@ test.h2o  <- scaled.summary[-s, ]
 
 # altogether
 train_hex <- as.h2o(x = train.h2o %>% mutate(steps_bin = as.factor(steps_bin)), destination_frame = "localH2O")
-val_hex   <- as.h2o(x = val.h2o %>% mutate(steps_bin = as.factor(steps_bin)), destination_frame = "localH2O")
-test_hex  <- as.h2o(x = test.h2o %>% mutate(steps_bin = as.factor(steps_bin)), destination_frame = "localH2O")
+val_hex   <- as.h2o(x = val.h2o   %>% mutate(steps_bin = as.factor(steps_bin)), destination_frame = "localH2O")
+test_hex  <- as.h2o(x = test.h2o  %>% mutate(steps_bin = as.factor(steps_bin)), destination_frame = "localH2O")
 
 # simple rf model
-set.seed(789)
-simple.h2o.rf.model <- h2o.randomForest(x = 2:9,
-                                        y = 1,
-                                        training_frame = train_hex, 
-                                        validation_frame = val_hex)
-set.seed(789)
-simple.h2o.gbm.model <- h2o.gbm(x = 2:9,
-                                        y = 1,
-                                        training_frame = train_hex, 
-                                        validation_frame = val_hex)
 
+simple.h2o.rf.model <- h2o.randomForest(x = 2:9, 
+                                        y = 1,
+                                        training_frame = train_hex, 
+                                        validation_frame = val_hex,
+                                        ntrees = 50,
+                                        max_depth = 10,
+                                        stopping_rounds = 2, 
+                                        stopping_metric = "AUTO",
+                                        stopping_tolerance = 0.001,
+                                        seed = 789)
+simple.h2o.gbm.model <- h2o.gbm(x = 2:9,
+                                y = 1,
+                                training_frame = train_hex, 
+                                validation_frame = val_hex,
+                                ntrees = 50,
+                                max_depth = 10,
+                                stopping_rounds = 2, 
+                                stopping_metric = "AUTO",
+                                stopping_tolerance = 0.001,
+                                seed = 789)
+
+simple.h2o.dnn.model <- h2o.deeplearning(x = 2:9,
+                                         y = 1,
+                                         training_frame = train_hex, 
+                                         validation_frame = val_hex,
+                                         hidden = c(200,200,200),
+                                         activation = "Rectifier",
+                                         epochs = 10,
+                                         stopping_rounds = 2, 
+                                         stopping_metric = "AUTO",
+                                         stopping_tolerance = 0.001,
+                                         seed = 789)
 
 confusionMatrix(h2o.predict(simple.h2o.rf.model, test_hex)$predict %>% as.factor %>% as.vector(),
                 test_hex$device_id %>% as.vector())
 
 confusionMatrix(h2o.predict(simple.h2o.gbm.model, test_hex)$predict %>% as.factor %>% as.vector(),
+                test_hex$device_id %>% as.vector())
+
+confusionMatrix(h2o.predict(simple.h2o.dnn.model, test_hex)$predict %>% as.factor %>% as.vector(),
                 test_hex$device_id %>% as.vector())
 
 # on new data
@@ -94,7 +119,13 @@ for (i in unique(scaled.summary$steps_bin)){
   h2o.rf.model <- h2o.randomForest(x = 2:8,
                                    y = 1,
                                    training_frame = train_hex, 
-                                   validation_frame = val_hex)
+                                   validation_frame = val_hex,
+                                   ntrees = 50,
+                                   max_depth = 10,
+                                   stopping_rounds = 2, 
+                                   stopping_metric = "AUTO",
+                                   stopping_tolerance = 0.001,
+                                   seed = 789)
   # store model in list of models
   h2o.models[[which(i == unique(scaled.summary$steps_bin))]] <- h2o.rf.model
 
@@ -118,12 +149,12 @@ names(h2o.models) <- unique(unique(scaled.summary$steps_bin))
 cache('h2o.models')
 cache('h2o.results')
 
-# near perfect results
-## suspiciously so!!
+# results
 confusionMatrix(h2o.results$pred_dev_id, h2o.results$actual_dev_id)
 
 
 #### test on extra.test.data
+## actually worse :(
 
 h2o.results.extra <- data.frame()
 for (i in unique(scaled.summary$steps_bin)) {
