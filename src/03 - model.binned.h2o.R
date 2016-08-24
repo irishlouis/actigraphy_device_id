@@ -1,6 +1,6 @@
 
 # initialise h2o cluster
-localH2O <- h2o.init(ip = "localhost", port = 54321, startH2O = TRUE, max_mem_size = "1g", nthreads = -1)
+localH2O <- h2o.init(ip = "localhost", port = 54321, startH2O = TRUE, nthreads = -1)
 
 # get max / min for scaling
 maxs <- apply(summary.dt %>% select(-device_id, -epoch_id, -steps_bin, -steps, -n), 2, max) 
@@ -38,6 +38,7 @@ test_hex  <- as.h2o(x = test.h2o  %>% mutate(steps_bin = as.factor(steps_bin)), 
 
 # simple rf model
 
+
 simple.h2o.rf.model <- h2o.randomForest(x = 2:9, 
                                         y = 1,
                                         training_frame = train_hex, 
@@ -71,14 +72,49 @@ simple.h2o.dnn.model <- h2o.deeplearning(x = 2:9,
                                          stopping_tolerance = 0.001,
                                          seed = 789)
 
-confusionMatrix(h2o.predict(simple.h2o.rf.model, test_hex)$predict %>% as.factor %>% as.vector(),
+confusionMatrix(h2o.predict(simple.h2o.rf.model, test_hex)$predict %>% as.vector(),
                 test_hex$device_id %>% as.vector())
 
-confusionMatrix(h2o.predict(simple.h2o.gbm.model, test_hex)$predict %>% as.factor %>% as.vector(),
+confusionMatrix(h2o.predict(simple.h2o.gbm.model, test_hex)$predict %>% as.vector(),
                 test_hex$device_id %>% as.vector())
 
-confusionMatrix(h2o.predict(simple.h2o.dnn.model, test_hex)$predict %>% as.factor %>% as.vector(),
+confusionMatrix(h2o.predict(simple.h2o.dnn.model, test_hex)$predict %>% as.vector(),
                 test_hex$device_id %>% as.vector())
+
+
+#### tune gbm
+search_criteria <- list(strategy = "RandomDiscrete", 
+                        max_runtime_secs = 240)
+nfolds <- 5
+
+# GBM Hyperparamters
+learn_rate_opt <- c(0.01, 0.02, 0.03) 
+max_depth_opt <- c(3, 5, 9, 15)
+sample_rate_opt <- c(0.7, 0.8, 0.9, 1.0)
+col_sample_rate_opt <- c(0.2, 0.4,  0.6,  0.8)
+ntrees <- c(10, 100)
+hyper_params <- list(learn_rate = learn_rate_opt,
+                     ntrees = ntrees,
+                     max_depth = max_depth_opt, 
+                     sample_rate = sample_rate_opt,
+                     col_sample_rate = col_sample_rate_opt)
+
+gbm_grid <- h2o.grid("gbm", x = 2:9, y = 1,
+                     training_frame = train_hex,
+                     seed = 1,
+                     nfolds = nfolds,
+                     fold_assignment = "Modulo",
+                     keep_cross_validation_predictions = TRUE,
+                     hyper_params = hyper_params,
+                     search_criteria = search_criteria)
+gbm_grid <- h2o.getGrid(gbm_grid@grid_id, sort_by="logloss", decreasing = F)
+h2o.performance(h2o.getModel(gbm_grid@model_ids[[1]]), test_hex)
+
+confusionMatrix(h2o.predict(h2o.getModel(gbm_grid@model_ids[[1]]), train_hex)$predict %>% as.vector,
+                test_hex$device_id %>% as.vector)
+
+gbm_models <- lapply(gbm_grid@model_ids, function(model_id) h2o.getModel(model_id))
+
 
 # on new data
 ## mostly matches with device TAS1E31150028 which was me
@@ -175,5 +211,4 @@ lapply(h2o.models, function(x) h2o.varimp(x))
 
 # shut down cluster
 h2o.shutdown()
-## confirm shut down
 y
