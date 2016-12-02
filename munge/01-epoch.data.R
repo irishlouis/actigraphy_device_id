@@ -1,3 +1,5 @@
+# some change to comment to check git branch
+
 # process epoch data to find epochs of interest
 ## only want epochs > min number of steps where epoch's neightours are also > min number of steps
 
